@@ -2,7 +2,6 @@ package exiom.simplexlsx;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

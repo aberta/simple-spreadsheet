@@ -1,6 +1,7 @@
 # simple-spreadsheet
 
-This is a small library to create simple spreadsheets in .xlsx format.  No 3rd-party libraries are required.
+This is a small library to create very simple spreadsheets in .xlsx format.  No 3rd-party libraries are required.  It's
+useful where you'd normally just write a .csv file for loading in to Excel but you want to control the formatting of numbers.  Also, numbers entered as text have the "number entered as text" warning message suppressed.
 
 Three data-types are supported:
 

@@ -1,7 +1,7 @@
 # simple-spreadsheet
 
 This is a small library to create very simple spreadsheets in .xlsx format.  No 3rd-party libraries are required.  It's
-useful where you'd normally just write a .csv file for loading in to Excel but you want to control the formatting of numbers.  Also, numbers entered as text have the "number entered as text" warning message suppressed.
+useful where you'd normally just write a .csv file for loading in to Excel but you want to control the formatting of numbers.  Also, numbers entered as text have the "number entered as text" warning message suppressed and leading zeros are preserved.
 
 Three data-types are supported:
 
@@ -9,7 +9,7 @@ Three data-types are supported:
 * BigDecimal
 * java.util.Date
 
-The formatting of the BigDecimal is according to the number of decimals which is obtained from calling scale().  The Date format is YYYY-MM-DD.
+The formatting of the BigDecimal is according to the number of decimals which is obtained from calling scale().  The Date format is YYYY-MM-DD.  String cells are written as given.
 
 Multiple worksheets are supported.
 
@@ -29,7 +29,7 @@ Multiple worksheets are supported.
                 .append(new BigDecimal("0.0"))
                 .append(new Date());
         
-        ws = wb.addWorksheet("My Other Data");
+        ws = wb.addWorksheet("My Other Sheet");
         ws.nextRow()
                 .append("Hello World")
                 .skipColumn() // adds a blank column

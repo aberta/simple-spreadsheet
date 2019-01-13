@@ -24,6 +24,12 @@ public class Worksheet {
         this.name = name;
         rows = new ArrayList<Row>();
     }
+    
+    public Row nextRow() {
+        Row r = new Row(rows.size() + 1);
+        rows.add(r);
+        return r;
+    }
 
     public String getName() {
         return name;

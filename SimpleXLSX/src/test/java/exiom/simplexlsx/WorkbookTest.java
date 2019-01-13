@@ -23,20 +23,20 @@ public class WorkbookTest {
         Workbook wb = new Workbook();
         Worksheet ws = wb.addWorksheet("My Data");
         
-        ws.add(new Row(1))
-                .append(new Cell("Hello"))
-                .append(new Cell(new BigDecimal("100.00")))
-                .append(new Cell(new Date()));
-        ws.add(new Row(2))
-                .append(new Cell("World"))
-                .append(new Cell(new BigDecimal("0.0")))
-                .append(new Cell(new Date()));
+        ws.nextRow()
+                .append("Hello")
+                .append(new BigDecimal("100.00"))
+                .append(new Date());
+        ws.nextRow()
+                .append("World")
+                .append(new BigDecimal("0.0"))
+                .append(new Date());
         
         ws = wb.addWorksheet("My Other Data");
-        ws.add(new Row(1))
-                .append(new Cell("Hello World"))
-                .append(new Cell(new BigDecimal("9.9")))
-                .append(new Cell(new Date()));
+        ws.nextRow()
+                .append("Hello World")
+                .append(new BigDecimal("9.9"))
+                .append(new Date());
         
         try {
             wb.write("test.xlsx");

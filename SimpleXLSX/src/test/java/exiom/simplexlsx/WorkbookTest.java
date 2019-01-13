@@ -20,17 +20,24 @@ public class WorkbookTest {
 
     @Test
     public void testWorksheet() {
+        
         Workbook wb = new Workbook();
         Worksheet ws = wb.addWorksheet("My Data");
+        ws.ignore(",");
         
         ws.nextRow()
                 .append("Hello")
+                .append(",")
                 .append(new BigDecimal("100.00"))
+                .append(",")
                 .append(new Date())
+                .append(",")
                 .append("001");
         ws.newRow(3)
                 .append("World")
+                .append(",")
                 .append(new BigDecimal("0.0"))
+                .append(",")
                 .append(new Date());
         
         ws = wb.addWorksheet("My Other Data");

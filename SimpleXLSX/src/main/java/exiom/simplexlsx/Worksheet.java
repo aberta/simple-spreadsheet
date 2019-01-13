@@ -18,13 +18,15 @@ public class Worksheet {
     private Workbook workbook;
     private String name;
     private int number;
-    
     private List<Row> rows;
-
+    
+    private String ignoreString;
+    
     Worksheet(Workbook workbook, String name) {
         this.workbook = workbook;
         this.name = name;
         rows = new ArrayList<Row>();
+        ignoreString = null;
     }
     
     public Row nextRow() {
@@ -35,6 +37,24 @@ public class Worksheet {
         Row r = new Row(this, rowNum);
         rows.add(r);
         return r;        
+    }
+
+    public void ignore(String text) {
+        ignoreString = text;
+    }
+    
+    public boolean shouldIgnore(String text) {
+        return ignoreString != null && ignoreString.equals(text);
+    }
+    
+    public int getMaxRowNum() {
+        int maxRow = 0;
+        for (Row r: rows) {
+            if (r.getRowNum() > maxRow) {
+                maxRow = r.getRowNum();
+            }
+        }
+        return maxRow;
     }
     
     void write(ZipOutputStream out) throws IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
@@ -54,6 +74,16 @@ public class Worksheet {
         for (Row r: rows) {
             r.write(doc, sheetData);
         }
+        
+        //<ignoredErrors><ignoredError sqref="D1" numberStoredAsText="1"/></ignoredErrors>
+        
+        Element ignoredErrors = doc.createElement("ignoredErrors");
+        root.appendChild(ignoredErrors);
+        Element ignoredError = doc.createElement("ignoredError");
+        ignoredErrors.appendChild(ignoredError);
+        
+        ignoredError.setAttribute("sqref", "A1:ZZ" + getMaxRowNum());
+        ignoredError.setAttribute("numberStoredAsText", "1");        
         
         XMLUtils.write(doc, out);
 

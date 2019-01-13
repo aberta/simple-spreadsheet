@@ -20,7 +20,9 @@ public class Row {
     }
 
     public Row append(String text) {
-        append(new Cell(this, text));
+        if (!getWorksheet().shouldIgnore(text)) {
+            append(new Cell(this, text));
+        }
         return this;
     }
 
@@ -45,6 +47,10 @@ public class Row {
     
     Worksheet getWorksheet() {
         return sheet;
+    }
+    
+    public int getRowNum() {
+        return rowNum;
     }
 
     public void write(Document doc, Element parent) {

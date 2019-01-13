@@ -15,20 +15,28 @@ import org.w3c.dom.Element;
 public class Workbook {
 
     private List<Worksheet> worksheets;
+    private StyleSheet styleSheet;
 
     public Workbook() {
         worksheets = new ArrayList<Worksheet>();
+        styleSheet = new StyleSheet();
     }
 
     public Worksheet addWorksheet(String name) {
-        Worksheet ws = new Worksheet(name);
+        Worksheet ws = new Worksheet(this, name);
         worksheets.add(ws);
         return ws;
     }
 
     public void write(String filename) throws IOException {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(filename));
-        write(out);
+        try {
+            write(out);
+        } catch (IOException ex) {
+            throw ex;
+        } finally {
+            out.close();
+        }
     }
 
     public void write(ZipOutputStream out) throws IOException {
@@ -42,6 +50,7 @@ public class Workbook {
             writeRels(out);
             writeContentTypes(out);
             writeWorkbook(out);
+            writeStylesheet(out);
             out.close();
         } catch (ParserConfigurationException ex) {
             throw new RuntimeException(ex);
@@ -73,16 +82,18 @@ public class Workbook {
         override.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
         root.appendChild(override);
 
+        for (int i = 0; i < worksheets.size(); i++) {
+            override = doc.createElement("Override");
+            override.setAttribute("PartName", "/xl/worksheets/sheet" + (i+1) + ".xml");
+            override.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+            root.appendChild(override);
+        }
+        
         override = doc.createElement("Override");
-        override.setAttribute("PartName", "/xl/worksheets/sheet1.xml");
-        override.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+        override.setAttribute("PartName", "/xl/styles.xml");
+        override.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
         root.appendChild(override);
-
-        override = doc.createElement("Override");
-        override.setAttribute("PartName", "/xl/worksheets/sheet2.xml");
-        override.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-        root.appendChild(override);
-
+        
         XMLUtils.write(doc, out);
 
         out.closeEntry();
@@ -106,9 +117,9 @@ public class Workbook {
         Element rel = doc.createElement("Relationship");
         rel.setAttribute("Id", "rId1");
         rel.setAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument");
-        rel.setAttribute("Target", "/xl/workbook.xml");
+        rel.setAttribute("Target", "xl/workbook.xml");
         root.appendChild(rel);
-
+        
         XMLUtils.write(doc, out);
 
         out.closeEntry();
@@ -124,17 +135,30 @@ public class Workbook {
 
         for (Worksheet ws : worksheets) {
             Element rel = doc.createElement("Relationship");
-            rel.setAttribute("Id", "rId" + Integer.toString(ws.getSheetNumber() + 1));
+            rel.setAttribute("Id", "rId" + Integer.toString(ws.getSheetNumber()));
             rel.setAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
-            rel.setAttribute("Target", "/xl/worksheets/sheet" + ws.getSheetNumber()+ ".xml");
+            rel.setAttribute("Target", "/xl/worksheets/sheet" + ws.getSheetNumber() + ".xml");
             root.appendChild(rel);
         }
+
+        Element rel = doc.createElement("Relationship");
+        rel.setAttribute("Id", "rId" + Integer.toString(worksheets.size() + 1));
+        rel.setAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles");
+        rel.setAttribute("Target", "/xl/styles.xml");
+        root.appendChild(rel);
 
         XMLUtils.write(doc, out);
 
         out.closeEntry();
     }
+    
+    private void writeStylesheet(ZipOutputStream out) throws IOException {
 
+        out.putNextEntry(new ZipEntry("xl/styles.xml"));
+        styleSheet.write(out);
+        out.closeEntry();
+    }
+    
     private void writeWorkbook(ZipOutputStream out) throws ParserConfigurationException,
             TransformerConfigurationException, TransformerException, IOException {
 
@@ -151,7 +175,7 @@ public class Workbook {
             Element sheet = doc.createElement("sheet");
             sheet.setAttribute("name", ws.getName());
             sheet.setAttribute("sheetId", Integer.toString(ws.getSheetNumber()));
-            sheet.setAttribute("r:id", "rId" + Integer.toString(ws.getSheetNumber() + 1));
+            sheet.setAttribute("r:id", "rId" + Integer.toString(ws.getSheetNumber()));
             sheets.appendChild(sheet);
         }
 
@@ -162,5 +186,13 @@ public class Workbook {
         for (Worksheet ws : worksheets) {
             ws.write(out);
         }
+    }
+
+    int getStyleForNumFmt(int numDecimals) {
+        return styleSheet.getStyleForFormatCode(NumberFormat.getFormatCodeForDecimals(numDecimals));
+    }
+    
+    int getStyleForDate() {
+        return styleSheet.getStyleForFormatCode(NumberFormat.getFormatForDate());
     }
 }

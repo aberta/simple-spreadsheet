@@ -8,24 +8,32 @@ import org.w3c.dom.Element;
 
 public class Cell {
 
+    private Row row;
     private Object value;
+    private int style;
 
-    public Cell(String text) {
+    public Cell(Row row, String text) {
+        this.row = row;
         this.value = text;
+        style = 0;
     }
 
-    public Cell(BigDecimal number) {
+    public Cell(Row row, BigDecimal number) {
+        this.row = row;
         value = number;
+        style = row.getWorksheet().getWorkbook().getStyleForNumFmt(number.scale());
     }
 
-    public Cell(Date date) {
+    public Cell(Row row, Date date) {
+        this.row = row;
         value = date;
+        style = row.getWorksheet().getWorkbook().getStyleForDate();
     }
 
-    void write(Document doc, Element row) {
+    void write(Document doc, Element parent) {
 
         Element cell = doc.createElement("c");
-        row.appendChild(cell);
+        parent.appendChild(cell);
 
         if (value instanceof String) {
 
@@ -35,9 +43,13 @@ public class Cell {
                     .appendChild(doc.createTextNode((String) value));
 
         } else if (value instanceof BigDecimal) {
+            BigDecimal number = (BigDecimal) value;
             cell.setAttribute("t", "n");
             cell.appendChild(doc.createElement("v"))
-                    .appendChild(doc.createTextNode(((BigDecimal) value).toPlainString()));
+                    .appendChild(doc.createTextNode(number.toPlainString()));
+            
+            int styleId = row.getWorksheet().getWorkbook().getStyleForNumFmt(number.scale());
+            cell.setAttribute("s", Integer.toString(styleId));
 
         } else if (value instanceof Date) {
 
@@ -46,6 +58,9 @@ public class Cell {
 
             cell.setAttribute("t", "d");
             cell.appendChild(doc.createElement("v")).appendChild(doc.createTextNode(iso8601));
+
+            int styleId = row.getWorksheet().getWorkbook().getStyleForDate();
+            cell.setAttribute("s", Integer.toString(styleId));
         }
     }
 }

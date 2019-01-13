@@ -26,8 +26,9 @@ public class WorkbookTest {
         ws.nextRow()
                 .append("Hello")
                 .append(new BigDecimal("100.00"))
-                .append(new Date());
-        ws.nextRow()
+                .append(new Date())
+                .append("001");
+        ws.newRow(3)
                 .append("World")
                 .append(new BigDecimal("0.0"))
                 .append(new Date());
@@ -35,7 +36,8 @@ public class WorkbookTest {
         ws = wb.addWorksheet("My Other Data");
         ws.nextRow()
                 .append("Hello World")
-                .append(new BigDecimal("9.9"))
+                .skipColumn()
+                .append(new BigDecimal("9.900"))
                 .append(new Date());
         
         try {

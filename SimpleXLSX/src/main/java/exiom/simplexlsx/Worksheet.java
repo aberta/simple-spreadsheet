@@ -15,39 +15,28 @@ import org.w3c.dom.Element;
 
 public class Worksheet {
 
+    private Workbook workbook;
     private String name;
     private int number;
     
     private List<Row> rows;
 
-    public Worksheet(String name) {
+    Worksheet(Workbook workbook, String name) {
+        this.workbook = workbook;
         this.name = name;
         rows = new ArrayList<Row>();
     }
     
     public Row nextRow() {
-        Row r = new Row(rows.size() + 1);
-        rows.add(r);
-        return r;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getSheetNumber() {
-        return number;
-    }
-
-    void setNumber(int number) {
-        this.number = number;
+        return newRow(rows.size() + 1);
     }
     
-    public Row add(Row row) {
-        rows.add(row);
-        return row;
+    public Row newRow(int rowNum) {
+        Row r = new Row(this, rowNum);
+        rows.add(r);
+        return r;        
     }
-
+    
     void write(ZipOutputStream out) throws IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
 
         out.putNextEntry(new ZipEntry("xl/worksheets/sheet" + getSheetNumber() + ".xml"));
@@ -69,5 +58,21 @@ public class Worksheet {
         XMLUtils.write(doc, out);
 
         out.closeEntry();
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public int getSheetNumber() {
+        return number;
+    }
+
+    void setNumber(int number) {
+        this.number = number;
+    }
+    
+    Workbook getWorkbook() {
+        return workbook;
     }
 }

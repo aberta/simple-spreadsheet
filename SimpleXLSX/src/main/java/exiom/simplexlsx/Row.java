@@ -9,32 +9,42 @@ import org.w3c.dom.Element;
 
 public class Row {
 
+    private Worksheet sheet;
     private int rowNum;
     private List<Cell> cells;
 
-    public Row(int rowNum) {
+    Row(Worksheet sheet, int rowNum) {
+        this.sheet = sheet;
         this.rowNum = rowNum;
         cells = new ArrayList<Cell>();
     }
 
     public Row append(String text) {
-        append(new Cell(text));
+        append(new Cell(this, text));
         return this;
     }
 
     public Row append(BigDecimal number) {
-        append(new Cell(number));
+        append(new Cell(this, number));
         return this;
     }
 
     public Row append(Date date) {
-        append(new Cell(date));
+        append(new Cell(this, date));
         return this;
     }
 
-    public Row append(Cell cell) {
+    Row append(Cell cell) {
         cells.add(cell);
         return this;
+    }
+    
+    public Row skipColumn() {
+        return append("");
+    }
+    
+    Worksheet getWorksheet() {
+        return sheet;
     }
 
     public void write(Document doc, Element parent) {

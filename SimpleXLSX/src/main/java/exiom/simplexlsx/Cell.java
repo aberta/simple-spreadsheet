@@ -10,24 +10,20 @@ public class Cell {
 
     private Row row;
     private Object value;
-    private int style;
 
     public Cell(Row row, String text) {
         this.row = row;
         this.value = text;
-        style = 0;
     }
 
     public Cell(Row row, BigDecimal number) {
         this.row = row;
         value = number;
-        style = row.getWorksheet().getWorkbook().getStyleForNumFmt(number.scale());
     }
 
     public Cell(Row row, Date date) {
         this.row = row;
         value = date;
-        style = row.getWorksheet().getWorkbook().getStyleForDate();
     }
 
     void write(Document doc, Element parent) {
@@ -38,19 +34,18 @@ public class Cell {
         if (value instanceof String) {
 
             cell.setAttribute("t", "inlineStr");
-            cell.appendChild(doc.createElement("is"))
-                    .appendChild(doc.createElement("t"))
+            cell.appendChild(doc.createElement("is")).appendChild(doc.createElement("t"))
                     .appendChild(doc.createTextNode((String) value));
 
         } else if (value instanceof BigDecimal) {
             BigDecimal number = (BigDecimal) value;
             cell.setAttribute("t", "n");
-            cell.appendChild(doc.createElement("v"))
-                    .appendChild(doc.createTextNode(number.toPlainString()));
-            
-            int styleId = row.getWorksheet().getWorkbook().getStyleForNumFmt(number.scale());
-            cell.setAttribute("s", Integer.toString(styleId));
+            cell.appendChild(doc.createElement("v")).appendChild(doc.createTextNode(number.toPlainString()));
 
+            if (number.scale() > 0) {
+                int styleId = row.getWorksheet().getWorkbook().getStyleForNumFmt(number.scale());
+                cell.setAttribute("s", Integer.toString(styleId));
+            }
         } else if (value instanceof Date) {
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");

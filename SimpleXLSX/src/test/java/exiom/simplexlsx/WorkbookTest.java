@@ -14,46 +14,32 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class WorkbookTest {
-    
+
     public WorkbookTest() {
     }
 
     @Test
     public void testWorksheet() {
-        
+
         Workbook wb = new Workbook();
         Worksheet ws = wb.addWorksheet("My Data");
         ws.ignore(",");
-        
-        ws.nextRow()
-                .append("Hello")
-                .append(",")
-                .append(new BigDecimal("100.00"))
-                .append(",")
-                .append(new Date())
-                .append(",")
-                .append("001");
-        ws.newRow(3)
-                .append("World")
-                .append(",")
-                .append(new BigDecimal("0.0"))
-                .append(",")
-                .append(new Date());
-        
+
+        ws.nextRow().append("Hello").append(",").append(new BigDecimal("100.00")).append(",").append(new Date())
+                .append(",").append("001");
+        ws.newRow(3).append("World").append(",").append(new BigDecimal("0.0")).append(",").append(new BigDecimal("42"))
+                .append(",").append(new Date());
+
         ws = wb.addWorksheet("My Other Data");
-        ws.nextRow()
-                .append("Hello World")
-                .skipColumn()
-                .append(new BigDecimal("9.900"))
-                .append(new Date());
-        
+        ws.nextRow().append("Hello World").skipColumn().append(new BigDecimal("9.900")).append(new Date());
+
         try {
             wb.write("test.xlsx");
         } catch (IOException ex) {
             Logger.getLogger(WorkbookTest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        assertTrue(true);        
+
+        assertTrue(true);
     }
 
 }
